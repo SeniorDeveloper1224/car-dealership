@@ -131,11 +131,12 @@ class AdminController extends Controller
     {
         return view('verify');
     }
-    // nishimura
+    // nishimura code for display cars list from Database with status
     public function cars(Request $request, $filter = 'all')
     {
         $active = ['', '', '', ''];
         $search = $request->query('search');
+        //get cars list from database about condition of 'search'
         if (isset($search)) {
             $title = 'Search Result for '.$search;
             switch ($filter) {
@@ -155,8 +156,9 @@ class AdminController extends Controller
                         $active[3] = 'nishimura_active';
                     }
                     break;
-            }            
+            }
         }
+        //get all cars
         else {
             $title = 'List of Cars';
             switch ($filter) {
@@ -180,6 +182,7 @@ class AdminController extends Controller
         }
         return view('admin.cars.list', compact('carData', 'active', 'title'));
     }
+    //Cars Data Update from API and update database
     public function updateDB() {
         $url = "https://vpic.nhtsa.dot.gov/api/vehicles/GetMakesForVehicleType/car?format=json";
         $output = file_get_contents($url);
@@ -201,6 +204,7 @@ class AdminController extends Controller
         return 'Cars Data Updated';
         // return $output;
     }
+// NOT USED YET
     public function kanban(Request $request)
     {
         $applicants = Car::orderByDesc('updated_at')->paginate(10);
@@ -239,6 +243,7 @@ class AdminController extends Controller
                     $open[] = $kb;
                 }
             }
+
             $open = json_encode($open);
             $inProgress = array();
             if(isset($applicants['InProgress'])) {
@@ -272,6 +277,7 @@ class AdminController extends Controller
                     $inProgress[] = $kb;
                 }
             }
+
             $inProgress = json_encode($inProgress);
             $staged = array();
             if(isset($applicants['Staged'])) {
@@ -344,11 +350,13 @@ class AdminController extends Controller
         else
             return view('admin.recruitment.kanban', compact('applicants', 'links'));
     }
+    //get detail car info
     public function details($id)
     {
         $car = Car::find($id);
         return view('admin.recruitment.details', compact('car'));
     }
+    //CheckOut operation with Database.
     public function checkout(Request $request, $id)
     {
         $car = Car::find($id);
@@ -356,6 +364,7 @@ class AdminController extends Controller
         $car->save();
         return $car->make_name;
     }
+    //Return operation with Database.
     public function return($id)
     {
         $car = Car::find($id);
